@@ -5,6 +5,7 @@ const {
   User, Post, Vote, Comment,
 } = require("../../models");
 
+
 // GET /api/users
 router.get("/", (req, res) => {
   // Access our User model and run .findAll() method)
@@ -81,6 +82,7 @@ router.post("/login", (req, res) => {
   User.findOne({
     where: {
       email: req.body.email,
+<<<<<<< HEAD:routes/api/user-routes.js
     },
   }).then((dbUserData) => {
     const validPassword = dbUserData.checkPassword(req.body.password);
@@ -92,6 +94,49 @@ router.post("/login", (req, res) => {
     res.json({ user: dbUserData, message: "You are now logged in!" });
   });
 });
+=======
+      password: req.body.password
+    })
+    .then(dbUserData => {
+      req.session.save(() => {
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = true;
+    
+        res.json(dbUserData);
+      });
+    })
+  });
+
+  router.post('/login', (req, res) => {
+    User.findOne({
+      where: {
+        email: req.body.email
+      }
+    }).then(dbUserData => {
+      if (!dbUserData) {
+        res.status(400).json({ message: 'No user with that email address!' });
+        return;
+      }
+  
+      const validPassword = dbUserData.checkPassword(req.body.password);
+  
+      if (!validPassword) {
+        res.status(400).json({ message: 'Incorrect password!' });
+        return;
+      }
+  
+      req.session.save(() => {
+        // declare session variables
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = true;
+  
+        res.json({ user: dbUserData, message: 'You are now logged in!' });
+      });
+    });
+  });
+>>>>>>> develop:controllers/api/user-routes.js
 
 // PUT /api/users/1
 router.put("/:id", (req, res) => {
@@ -137,4 +182,19 @@ router.delete("/:id", (req, res) => {
     });
 });
 
+<<<<<<< HEAD:routes/api/user-routes.js
 module.exports = router;
+=======
+  router.post('/logout', (req, res) => {
+    if (req.session.loggedIn) {
+      req.session.destroy(() => {
+        res.status(204).end();
+      });
+    }
+    else {
+      res.status(404).end();
+    }
+  });
+
+module.exports = router;
+>>>>>>> develop:controllers/api/user-routes.js
